@@ -12,8 +12,8 @@
     "time",
     "tracker"
   ],
-  "author": "Your Name",
-  "license": "MIT",
+  "author": "Ana Matoso",
+  "license": "Apache",
   "cordova": {
     "platforms": [
       "android"
