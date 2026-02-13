@@ -33,6 +33,17 @@ jobs:
           sdkmanager "platform-tools" "platforms;android-33" "build-tools;33.0.2"
           yes | sdkmanager --licenses
       
+      - name: Setup Gradle 8.x
+        uses: gradle/actions/setup-gradle@v3
+        with:
+          gradle-version: 8.5
+      
+      - name: Remove system Gradle to force Gradle 8.x
+        run: |
+          sudo rm -f /usr/bin/gradle
+          sudo ln -s $(which gradle) /usr/bin/gradle
+          gradle --version
+      
       - name: Install Cordova
         run: npm install -g cordova
       
