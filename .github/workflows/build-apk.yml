@@ -54,7 +54,9 @@ jobs:
         run: cordova platform add android@12.0.1
       
       - name: Build APK
-        run: cordova build android --release
+        run: |
+          cordova plugin remove cordova-plugin-splashscreen
+          cordova build android --release
       
       - name: Upload APK as artifact
         uses: actions/upload-artifact@v4
