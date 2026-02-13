@@ -20,4 +20,6 @@
     <preference name="DisallowOverscroll" value="true" />
     <preference name="BackgroundColor" value="0xff0f172a" />
     <preference name="Fullscreen" value="false" />
+    <preference name="SplashScreenDelay" value="0" />
+<preference name="AutoHideSplashScreen" value="true" />
 </widget>
