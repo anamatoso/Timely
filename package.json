@@ -1,7 +1,7 @@
 {
-  "name": "timesince",
+  "name": "timely",
   "displayName": "Timely",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Track how long it's been since you last did something",
   "main": "index.js",
   "scripts": {

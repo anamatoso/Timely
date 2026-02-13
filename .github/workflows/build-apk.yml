@@ -53,20 +53,20 @@ jobs:
       - name: Add Android platform
         run: cordova platform add android@12.0.1
       
-      - name: Build APK
-        run: cordova build android --release
+      - name: Build Debug APK
+        run: cordova build android
       
       - name: Upload APK as artifact
         uses: actions/upload-artifact@v4
         with:
-          name: app-release
-          path: /home/runner/work/Timely/Timely/platforms/android/app/build/outputs/bundle/release/app-release-unsigned.apk
+          name: app-debug
+          path: platforms/android/app/build/outputs/apk/debug/app-debug.apk
       
       - name: Create Release
         if: startsWith(github.ref, 'refs/tags/')
         uses: softprops/action-gh-release@v1
         with:
-          files: /home/runner/work/Timely/Timely/platforms/android/app/build/outputs/bundle/release/app-release-unsigned.apk
+          files: platforms/android/app/build/outputs/apk/debug/app-debug.apk
           body: |
             ## Time Since App - Release ${{ github.ref_name }}
             
@@ -75,12 +75,7 @@ jobs:
             2. Transfer it to your Android phone
             3. Enable "Install from Unknown Sources" in Settings > Security
             4. Open the APK and install
-            
-            ### What's New
-            - Initial release of Time Since tracker app
-            - Track multiple events simultaneously
-            - Local storage (no internet required)
-            - No ads, no tracking
+
           draft: false
           prerelease: false
         env:
