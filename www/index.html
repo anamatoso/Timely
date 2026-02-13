@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self' data: https://ssl.gstatic.com 'unsafe-eval' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://unpkg.com https://cdn.tailwindcss.com;">
+    <title>Timely</title>
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            overflow-x: hidden;
+        }
+        * {
+            -webkit-tap-highlight-color: transparent;
+        }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+    <script type="text/babel">
+        const { useState, useEffect } = React;
+
+        function TimeSinceApp() {
+            const [events, setEvents] = useState([]);
+            const [showAddForm, setShowAddForm] = useState(false);
+            const [newEventName, setNewEventName] = useState('');
+            const [selectedEvent, setSelectedEvent] = useState(null);
+            const [currentTime, setCurrentTime] = useState(Date.now());
+
+            useEffect(() => {
+                const stored = localStorage.getItem('timeSinceEvents');
+                if (stored) {
+                    try {
+                        setEvents(JSON.parse(stored));
+                    } catch (e) {
+                        console.error('Error loading events:', e);
+                    }
+                }
+            }, []);
+
+            useEffect(() => {
+                localStorage.setItem('timeSinceEvents', JSON.stringify(events));
+            }, [events]);
+
+            useEffect(() => {
+                const interval = setInterval(() => {
+                    setCurrentTime(Date.now());
+                }, 1000);
+                return () => clearInterval(interval);
+            }, []);
+
+            const formatTimeSince = (timestamp) => {
+                const diff = currentTime - timestamp;
+                const seconds = Math.floor(diff / 1000);
+                const minutes = Math.floor(seconds / 60);
+                const hours = Math.floor(minutes / 60);
+                const days = Math.floor(hours / 24);
+
+                if (days > 0) {
+                    const remainingHours = hours % 24;
+                    return `${days}d ${remainingHours}h`;
+                } else if (hours > 0) {
+                    const remainingMinutes = minutes % 60;
+                    return `${hours}h ${remainingMinutes}m`;
+                } else if (minutes > 0) {
+                    const remainingSeconds = seconds % 60;
+                    return `${minutes}m ${remainingSeconds}s`;
+                } else {
+                    return `${seconds}s`;
+                }
+            };
+
+            const addEvent = (e) => {
+                e.preventDefault();
+                if (newEventName.trim()) {
+                    const newEvent = {
+                        id: Date.now(),
+                        name: newEventName.trim(),
+                        lastDone: Date.now()
+                    };
+                    setEvents([...events, newEvent]);
+                    setNewEventName('');
+                    setShowAddForm(false);
+                }
+            };
+
+            const resetEvent = (id) => {
+                setEvents(events.map(event => 
+                    event.id === id ? { ...event, lastDone: Date.now() } : event
+                ));
+                setSelectedEvent(null);
+            };
+
+            const deleteEvent = (id) => {
+                setEvents(events.filter(event => event.id !== id));
+                setSelectedEvent(null);
+            };
+
+            const PlusIcon = () => (
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <line x1="12" y1="5" x2="12" y2="19"></line>
+                    <line x1="5" y1="12" x2="19" y2="12"></line>
+                </svg>
+            );
+
+            const RotateCcwIcon = () => (
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <polyline points="1 4 1 10 7 10"></polyline>
+                    <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path>
+                </svg>
+            );
+
+            const Trash2Icon = () => (
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <polyline points="3 6 5 6 21 6"></polyline>
+                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                    <line x1="10" y1="11" x2="10" y2="17"></line>
+                    <line x1="14" y1="11" x2="14" y2="17"></line>
+                </svg>
+            );
+
+            const XIcon = () => (
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+            );
+
+            return (
+                <div className="min-h-screen bg-gradient-to-br from-slate-900 to-slate-800 p-6">
+                    <div className="max-w-2xl mx-auto">
+                        <div className="mb-8 text-center">
+                            <h1 className="text-4xl font-bold text-white mb-2">Timely</h1>
+                            <p className="text-slate-400">Track how long it's been since you last did something</p>
+                        </div>
+
+                        <div className="space-y-3 mb-6">
+                            {events.map(event => (
+                                <div
+                                    key={event.id}
+                                    onClick={() => setSelectedEvent(event.id)}
+                                    className="bg-slate-800 rounded-lg p-4 cursor-pointer hover:bg-slate-750 transition-all shadow-lg border border-slate-700 hover:border-slate-600 active:scale-98"
+                                >
+                                    <div className="flex justify-between items-center">
+                                        <span className="text-white font-medium text-lg">{event.name}</span>
+                                        <span className="text-emerald-400 font-mono text-xl font-bold">
+                                            {formatTimeSince(event.lastDone)}
+                                        </span>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+
+                        {events.length === 0 && !showAddForm && (
+                            <div className="text-center py-12 text-slate-500">
+                                <p className="mb-4">No events tracked yet</p>
+                                <p className="text-sm">Click the button below to add your first event</p>
+                            </div>
+                        )}
+
+                        {showAddForm ? (
+                            <form onSubmit={addEvent} className="bg-slate-800 rounded-lg p-4 shadow-lg border border-slate-700">
+                                <input
+                                    type="text"
+                                    value={newEventName}
+                                    onChange={(e) => setNewEventName(e.target.value)}
+                                    placeholder="Event name (e.g., 'Went to the gym')"
+                                    className="w-full bg-slate-900 text-white rounded px-4 py-3 mb-3 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                                    autoFocus
+                                />
+                                <div className="flex gap-2">
+                                    <button
+                                        type="submit"
+                                        className="flex-1 bg-emerald-600 text-white rounded py-2 font-medium hover:bg-emerald-700 transition-colors active:scale-95"
+                                    >
+                                        Add Event
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={() => {
+                                            setShowAddForm(false);
+                                            setNewEventName('');
+                                        }}
+                                        className="px-4 bg-slate-700 text-white rounded hover:bg-slate-600 transition-colors active:scale-95"
+                                    >
+                                        Cancel
+                                    </button>
+                                </div>
+                            </form>
+                        ) : (
+                            <button
+                                onClick={() => setShowAddForm(true)}
+                                className="w-full bg-emerald-600 text-white rounded-lg py-3 font-medium hover:bg-emerald-700 transition-colors shadow-lg flex items-center justify-center gap-2 active:scale-95"
+                            >
+                                <PlusIcon />
+                                Add New Event
+                            </button>
+                        )}
+
+                        {selectedEvent && (
+                            <div 
+                                className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50"
+                                onClick={() => setSelectedEvent(null)}
+                            >
+                                <div 
+                                    className="bg-slate-800 rounded-lg p-6 max-w-sm w-full shadow-2xl border border-slate-700"
+                                    onClick={(e) => e.stopPropagation()}
+                                >
+                                    <div className="flex justify-between items-start mb-6">
+                                        <h3 className="text-xl font-bold text-white">
+                                            {events.find(e => e.id === selectedEvent)?.name}
+                                        </h3>
+                                        <button
+                                            onClick={() => setSelectedEvent(null)}
+                                            className="text-slate-400 hover:text-white transition-colors active:scale-90"
+                                        >
+                                            <XIcon />
+                                        </button>
+                                    </div>
+                                    
+                                    <div className="space-y-3">
+                                        <button
+                                            onClick={() => resetEvent(selectedEvent)}
+                                            className="w-full bg-blue-600 text-white rounded-lg py-3 font-medium hover:bg-blue-700 transition-colors flex items-center justify-center gap-2 active:scale-95"
+                                        >
+                                            <RotateCcwIcon />
+                                            Reset Counter (I did this today)
+                                        </button>
+                                        
+                                        <button
+                                            onClick={() => deleteEvent(selectedEvent)}
+                                            className="w-full bg-red-600 text-white rounded-lg py-3 font-medium hover:bg-red-700 transition-colors flex items-center justify-center gap-2 active:scale-95"
+                                        >
+                                            <Trash2Icon />
+                                            Delete Event
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+                    </div>
+                </div>
+            );
+        }
+
+        ReactDOM.render(<TimeSinceApp />, document.getElementById('root'));
+    </script>
+</body>
+</html>
